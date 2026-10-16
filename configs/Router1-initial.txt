@@ -1,0 +1,17 @@
+Router 1 — initial commands entered
+
+enable
+configure terminal
+interface gigabitEthernet 0/0
+no shutdown
+exit
+interface gigabitEthernet 0/1
+no shutdown
+exit
+end
+
+Notes:
+- These commands enable the two interfaces administratively.
+- No IP addresses have been assigned in the recorded configuration.
+- The original CLI output showed interface/link-up messages for GigabitEthernet0/0 and GigabitEthernet0/1.
+- A later show ip interface brief output for Router 1 has not yet been captured in this record.
