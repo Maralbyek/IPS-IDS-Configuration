@@ -1,26 +1,29 @@
-Router 2 — initial commands entered
+Router2 — interface addressing and verification
+
+Commands entered and subsequently verified by the user:
 
 enable
 configure terminal
 interface gigabitEthernet 0/0
+ip address 10.0.0.2 255.255.255.252
 no shutdown
 exit
 interface gigabitEthernet 0/1
+ip address 192.168.20.1 255.255.255.0
 no shutdown
-exit
 end
-
-Verification command:
 show ip interface brief
 
-Observed output:
+Observed output supplied in chat:
+
 Interface              IP-Address      OK? Method Status                Protocol
-GigabitEthernet0/0     unassigned      YES unset  up                    up
-GigabitEthernet0/1     unassigned      YES unset  up                    up
+GigabitEthernet0/0     10.0.0.2        YES manual up                    up
+GigabitEthernet0/1     192.168.20.1    YES manual up                    up
 GigabitEthernet0/2     unassigned      YES unset  administratively down down
 Vlan1                  unassigned      YES unset  administratively down down
 
-Interpretation:
-- GigabitEthernet0/0 and GigabitEthernet0/1 reported up/up.
-- Neither interface has an IP address assigned.
-- GigabitEthernet0/2 and Vlan1 are administratively down; they are not currently part of the intended design.
+Result:
+- GigabitEthernet0/0 is configured for the point-to-point link to Router1.
+- GigabitEthernet0/1 is configured as the LAN 2 gateway.
+- Both configured interfaces reported up/up in the supplied output.
+- PC/server addressing, routing, and end-to-end connectivity remain pending.
