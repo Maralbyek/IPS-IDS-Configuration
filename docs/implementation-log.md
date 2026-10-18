@@ -58,15 +58,17 @@ The result demonstrates a host-specific router ACL policy: PC1 is blocked from r
 - The router's `flash0:/` directory listing included `sigdef-category.xml` and `sigdef-default.xml`.
 - IPS signature categories were configured with `category ios_ips basic` and `retired false`; IOS reported the `atomic-ip` engine ready and scanning packets, initially with 288 signatures reported in the build message.
 - The IPS rule `EDGE-IPS` was created and applied inbound on Router1 `GigabitEthernet0/0` using `ip ips EDGE-IPS in`. The running configuration confirms this interface command.
-- `ip ips config location flash0:` was accepted syntactically, but IOS emitted `%IPS-3-IPS_FILE_OPEN_ERROR` for `sigdef-default.xml`, `sigdef-delta.xml`, and `sigdef-category.xml`, saying the directory does not exist. `show ip ips all` continues to report 0 active and 0 inactive signatures and blank signature load times. Its latest output also has an empty interface-status section, despite the running configuration showing `ip ips EDGE-IPS in`.
+- `ip ips config location flash0:` was accepted syntactically, but IOS emitted `%IPS-3-IPS_FILE_OPEN_ERROR` for the signature files, saying the directory does not exist. The original `flash0:/sigdef-category.xml` is 28,282 bytes; `sigdef-default.xml` and `sigdef-delta.xml` are each 227,537 bytes.
+- The configured location was changed to `flash:ips5`. The directory listing `dir ips5` shows all three expected filenames, but the copied `sigdef-category.xml` is 0 bytes; the default and delta files are each 227,537 bytes. The original root-level category file remains intact. `more sigdef-category.xml` returned no displayed content.
+- The latest `show ip ips all` confirms `Configured Config Locations: flash:ips5`, `Total Active Signatures: 0`, `Total Inactive Signatures: 0`, and blank default/delta load times. It also confirms `EDGE-IPS` is attached inbound to `GigabitEthernet0/0`. This means the interface attachment is configured, but usable signatures are not loaded; IPS detection has not been verified.
 - After applying the interface rule, IOS emitted engine-build messages reporting `atomic-ip - 3 signatures` and `ENGINE_READY`. This build message does not override the separate status output showing zero active signatures.
 
 ### IPS test interpretation and limitation
 - PC1 ping to Server2 (`192.168.20.20`) failed, consistent with the existing Router2 ACL `BLOCK_PC1_TO_SERVER2`.
 - PC2 ping to Server2 received three replies and one packet loss in the reported test; repeat the test to confirm stable connectivity.
-- These pings do not demonstrate IPS detection or blocking, because the ACL already explains PC1's failed ping and no IPS signature event has been verified. Treat IOS IPS as configured but not verified operationally in this Packet Tracer image until signature loading/status issues are resolved.
+- These pings do not demonstrate IPS detection or blocking, because the ACL already explains PC1's failed ping and no IPS signature event has been verified. Treat IOS IPS as attached to the interface but non-operational/unverified because the signature status reports zero active and inactive signatures. Do not claim IPS detection or blocking.
 
 ## Remaining work
-- Resolve why IOS IPS cannot load signature files from `flash0:` in this Packet Tracer IOS image, or explicitly document this simulation limitation if no supported fix is available.
-- Recheck `show ip ips all`, the running configuration, and `show logging` after the signature-loading issue is addressed.
+- If continuing IPS troubleshooting, restore the config location to the original signature directory only when appropriate and use a supported way to populate a valid category file; do not overwrite the intact root-level files with the zero-byte copy. If the simulator offers no supported method, document this as a Packet Tracer IOS limitation.
+- Recheck `show ip ips all`, the running configuration, and `show logging` only after signature loading is addressed.
 - Add screenshots of the router-to-router test, static routing tables, ACL configuration/counters, and PC1/PC2 ping results to `evidence/`.
