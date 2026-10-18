@@ -53,8 +53,20 @@ interface GigabitEthernet0/1
 ### Interpretation and limitation
 The result demonstrates a host-specific router ACL policy: PC1 is blocked from reaching Server2, while the tested PC2 traffic is permitted. This is ACL-based access control, not proof of a full IDS/IPS deployment.
 
+## Checkpoint 5 — IOS IPS configuration attempt on Router1
+- Router1 is a Cisco 2911 running IOS 15.1(4)M4. The user enabled the `securityk9` technology package under its evaluation license and rebooted the router; `show version` subsequently showed `securityk9` as the current package.
+- The router's `flash0:/` directory listing included `sigdef-category.xml` and `sigdef-default.xml`.
+- IPS signature categories were configured with `category ios_ips basic` and `retired false`; IOS reported the `atomic-ip` engine ready and scanning packets, initially with 288 signatures reported in the build message.
+- The IPS rule `EDGE-IPS` was created and applied inbound on Router1 `GigabitEthernet0/0` using `ip ips EDGE-IPS in`. The running configuration confirms this interface command.
+- `ip ips config location flash0:` was accepted syntactically, but IOS emitted `%IPS-3-IPS_FILE_OPEN_ERROR` for `sigdef-default.xml`, `sigdef-delta.xml`, and `sigdef-category.xml`, saying the directory does not exist. `show ip ips all` continues to report 0 active and 0 inactive signatures and blank signature load times. Its latest output also has an empty interface-status section, despite the running configuration showing `ip ips EDGE-IPS in`.
+- After applying the interface rule, IOS emitted engine-build messages reporting `atomic-ip - 3 signatures` and `ENGINE_READY`. This build message does not override the separate status output showing zero active signatures.
+
+### IPS test interpretation and limitation
+- PC1 ping to Server2 (`192.168.20.20`) failed, consistent with the existing Router2 ACL `BLOCK_PC1_TO_SERVER2`.
+- PC2 ping to Server2 received three replies and one packet loss in the reported test; repeat the test to confirm stable connectivity.
+- These pings do not demonstrate IPS detection or blocking, because the ACL already explains PC1's failed ping and no IPS signature event has been verified. Treat IOS IPS as configured but not verified operationally in this Packet Tracer image until signature loading/status issues are resolved.
+
 ## Remaining work
+- Resolve why IOS IPS cannot load signature files from `flash0:` in this Packet Tracer IOS image, or explicitly document this simulation limitation if no supported fix is available.
+- Recheck `show ip ips all`, the running configuration, and `show logging` after the signature-loading issue is addressed.
 - Add screenshots of the router-to-router test, static routing tables, ACL configuration/counters, and PC1/PC2 ping results to `evidence/`.
-- Check IOS IPS support on Router1 (Cisco 2911, IOS 15.1(4)M4): `show version` reports the Security technology package as `disable` (current) and `None` (next reboot). In configuration mode, `ip ips ?` returns `% Unrecognized command`, so IOS IPS is not currently available through that command in this Packet Tracer image/configuration.
-- The read-only command `license boot module c2900 technology-package ?` listed `securityk9` and `uck9`. The user approved enabling `securityk9`; Router1 accepted the Cisco EULA and reported `Next reboot level = securityk9` with an evaluation license. The configuration still needs to be saved and Router1 reloaded before the package is active. Do not report IOS IPS as available until verified after reboot.
-- If IOS IPS remains unavailable, document that limitation and describe the ACL as the security control actually implemented.
