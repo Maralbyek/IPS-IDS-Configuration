@@ -1,0 +1,18 @@
+! Router2 ACL security configuration
+! Recorded from the Packet Tracer configuration tested in this project.
+!
+ip access-list extended BLOCK_PC1_TO_SERVER2
+ deny ip host 192.168.10.10 host 192.168.20.20
+ permit ip any any
+!
+interface GigabitEthernet0/1
+ ip access-group BLOCK_PC1_TO_SERVER2 out
+!
+! Verification performed:
+! - show access-lists displayed 5 matches on the deny entry and 1 match
+!   on the permit entry at the time of checking.
+! - User-reported test: PC1 (192.168.10.10) ping to Server2
+!   (192.168.20.20) failed.
+! - User-reported test: PC2 (192.168.10.11) ping to Server2 succeeded.
+!
+! This is an ACL access-control demonstration, not a full IDS/IPS deployment.
