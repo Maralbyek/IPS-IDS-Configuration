@@ -55,5 +55,6 @@ The result demonstrates a host-specific router ACL policy: PC1 is blocked from r
 
 ## Remaining work
 - Add screenshots of the router-to-router test, static routing tables, ACL configuration/counters, and PC1/PC2 ping results to `evidence/`.
-- Investigate whether the Packet Tracer IOS image/device supports an IOS IPS feature before claiming IDS/IPS implementation.
-- If IOS IPS is unavailable, document that limitation and describe the ACL as the security control actually implemented.
+- Check IOS IPS support on Router1 (Cisco 2911, IOS 15.1(4)M4): `show version` reports the Security technology package as `disable` (current) and `None` (next reboot). In configuration mode, `ip ips ?` returns `% Unrecognized command`, so IOS IPS is not currently available through that command in this Packet Tracer image/configuration.
+- Next diagnostic: inspect the supported `license boot module c2900 technology-package` options without applying a license change. Do not enable a package or reload the router until support and the impact are confirmed.
+- If IOS IPS remains unavailable, document that limitation and describe the ACL as the security control actually implemented.
