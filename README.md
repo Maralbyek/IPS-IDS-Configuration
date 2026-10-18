@@ -46,7 +46,7 @@ An extended IPv4 ACL named `BLOCK_PC1_TO_SERVER2` is applied outbound on Router2
 
 This demonstrates router ACL-based access control. It does **not** by itself implement a full IDS/IPS. An IOS IPS feature would need to be separately checked, configured, and tested if supported by this Packet Tracer device/version.
 
-The Router1 check showed IOS 15.1(4)M4 with the Security technology package disabled; `ip ips ?` returned `% Unrecognized command`. IOS IPS is therefore not yet configured or verified in this Packet Tracer image. Further license/package support checks are pending; no license change or reload has been performed. The live Packet Tracer configuration is not changed by documenting it in this repository. See `configs/Router2-security.txt` for the ACL commands recorded for the project.
+Router1 runs IOS 15.1(4)M4 with the `securityk9` evaluation package enabled. The `EDGE-IPS` rule is attached inbound to Router1 GigabitEthernet0/0, but the latest `show ip ips all` reports **0 active and 0 inactive signatures** and blank signature load times. The configured signature directory contains a zero-byte `sigdef-category.xml`, while the original root-level file remains intact at 28,282 bytes. Therefore, IOS IPS detection is **not verified operationally** in this Packet Tracer image and must not be presented as a successful IPS test. See `docs/implementation-log.md` for troubleshooting details and `configs/Router2-security.txt` for the verified ACL configuration.
 
 ## Repository Contents
 - `configs/` — router configuration and security command records.
