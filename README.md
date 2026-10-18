@@ -46,7 +46,7 @@ An extended IPv4 ACL named `BLOCK_PC1_TO_SERVER2` is applied outbound on Router2
 
 This demonstrates router ACL-based access control. It does **not** by itself implement a full IDS/IPS. An IOS IPS feature would need to be separately checked, configured, and tested if supported by this Packet Tracer device/version.
 
-The live Packet Tracer configuration is not changed by documenting it in this repository. See `configs/Router2-security.txt` for the ACL commands recorded for the project.
+The Router1 check showed IOS 15.1(4)M4 with the Security technology package disabled; `ip ips ?` returned `% Unrecognized command`. IOS IPS is therefore not yet configured or verified in this Packet Tracer image. Further license/package support checks are pending; no license change or reload has been performed. The live Packet Tracer configuration is not changed by documenting it in this repository. See `configs/Router2-security.txt` for the ACL commands recorded for the project.
 
 ## Repository Contents
 - `configs/` — router configuration and security command records.
