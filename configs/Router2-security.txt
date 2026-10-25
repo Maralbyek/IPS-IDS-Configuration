@@ -1,18 +1,35 @@
-! Router2 ACL security configuration
-! Recorded from the Packet Tracer configuration tested in this project.
+! Router2 ACL security configuration record
+! ACL definition observed in Packet Tracer:
 !
 ip access-list extended BLOCK_PC1_TO_SERVER2
  deny ip host 192.168.10.10 host 192.168.20.20
  permit ip any any
 !
-interface GigabitEthernet0/1
- ip access-group BLOCK_PC1_TO_SERVER2 out
+! Intended interface attachment:
+! interface GigabitEthernet0/1
+!  ip access-group BLOCK_PC1_TO_SERVER2 out
 !
-! Verification performed:
-! - show access-lists displayed 5 matches on the deny entry and 1 match
-!   on the permit entry at the time of checking.
+! CURRENT STATE (2026-10-25):
+! The ACL was temporarily detached from Router2 G0/1 during troubleshooting
+! with: no ip access-group BLOCK_PC1_TO_SERVER2 out
+! The ACL definition remains configured, but is not currently applied.
+!
+! Historical verification:
+! - show access-lists displayed the deny and permit entries.
+! - show ip interface GigabitEthernet0/1 previously reported the outgoing
+!   access list as BLOCK_PC1_TO_SERVER2.
 ! - User-reported test: PC1 (192.168.10.10) ping to Server2
-!   (192.168.20.20) failed.
-! - User-reported test: PC2 (192.168.10.11) ping to Server2 succeeded.
+!   (192.168.20.20) failed while the ACL was applied.
+! - User-reported test: PC2 (192.168.10.11) ping to Server2 succeeded
+!   during an earlier ACL test.
+! - ACL counters previously showed 5 matches on deny and 1 on permit.
 !
-! This is an ACL access-control demonstration, not a full IDS/IPS deployment.
+! Latest troubleshooting:
+! PC2-to-Server2 ping still timed out after the ACL was detached.
+! After the IPS rule was also detached from Router1 G0/0, PC2-to-Server2
+! succeeded (4 replies, 0% loss). This suggests the IPS attachment was
+! implicated, but the exact mechanism remains unconfirmed.
+!
+! Reapply the intended interface attachment and test PC2 allowed / PC1
+! blocked before treating this ACL policy as currently active.
+! This is ACL-based access control, not a full IDS/IPS deployment.
