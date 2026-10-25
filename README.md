@@ -1,7 +1,7 @@
 # Cisco Network Security Configuration
 
 ## Overview
-This repository documents the configuration, connectivity checks, and router ACL security testing of a Cisco Packet Tracer network.
+This repository documents the configuration, connectivity checks, and router ACL security testing of a Cisco Packet Tracer network. Configuration status is recorded separately from test results; an attached IPS rule alone is not proof of operational detection.
 
 ## Network Inventory
 
@@ -38,23 +38,32 @@ Static routes are configured:
 - Router1: `ip route 192.168.20.0 255.255.255.0 10.0.0.2`
 - Router2: `ip route 192.168.10.0 255.255.255.0 10.0.0.1`
 
-The user reported successful router-to-router connectivity and successful cross-LAN pings before the ACL security test. The ACL test subsequently confirmed that PC1 could no longer ping Server2, while PC2 could still ping Server2. CLI ACL counters showed 5 matches on the deny entry and 1 match on the permit entry at the time of checking.
+### Latest connectivity checkpoint — 2026-10-25
+The user reported successful pings from Router1 to PC2 (`192.168.10.11`), Router2's transit interface (`10.0.0.2`), and Router2's LAN interface (`192.168.20.1`). Router2 also successfully pinged Server2 (`192.168.20.20`) and PC2 (`192.168.10.11`).
 
-## Security Control
+PC2-to-Server2 ping timed out while the Router2 ACL was detached from its interface. After the IPS rule was also detached from Router1 G0/0, PC2-to-Server2 succeeded with 4 replies and 0% loss. This implicates the IPS interface attachment in the earlier failure, but the exact cause is not yet confirmed because the signature status is inconsistent and both security controls were detached by the time the successful ping was recorded.
 
-An extended IPv4 ACL named `BLOCK_PC1_TO_SERVER2` is applied outbound on Router2 GigabitEthernet0/1. It denies IP traffic from PC1 (192.168.10.10) to Server2 (192.168.20.20) and permits other IP traffic.
+## Security Controls
 
-This demonstrates router ACL-based access control. It does **not** by itself implement a full IDS/IPS. An IOS IPS feature would need to be separately checked, configured, and tested if supported by this Packet Tracer device/version.
+### Router2 ACL: `BLOCK_PC1_TO_SERVER2`
+The ACL definition contains:
+- Deny IP traffic from PC1 (`192.168.10.10`) to Server2 (`192.168.20.20`).
+- Permit all other IP traffic.
 
-Router1 runs IOS 15.1(4)M4 with the `securityk9` evaluation package enabled. The `EDGE-IPS` rule is attached inbound to Router1 GigabitEthernet0/0. However, the latest checks are inconsistent: `show ip ips all` reports **1 active signature**, while `show ip ips signatures count` reports the `string-icmp` engine has **0 enabled and 1 retired signature**, despite the overall count showing 1 enabled. Signature load times are blank, and no IPS detection event has been confirmed. Therefore, IOS IPS detection is **not verified operationally** in this Packet Tracer image and must not be presented as a successful IPS test. See `docs/implementation-log.md` for troubleshooting details and `configs/Router2-security.txt` for the verified ACL configuration.
+**Current state:** the ACL definition remains on Router2, but it is temporarily detached from GigabitEthernet0/1 during troubleshooting. The intended interface command is `ip access-group BLOCK_PC1_TO_SERVER2 out`. Re-apply it and verify PC2 is permitted and PC1 is blocked before claiming the ACL test is currently active. See `configs/Router2-security.txt` and `docs/implementation-log.md`.
+
+### Router1 IOS IPS: `EDGE-IPS`
+Router1 runs IOS 15.1(4)M4 with the `securityk9` evaluation package enabled. The IPS signature status was inconsistent: `show ip ips all` reported one active signature, while `show ip ips signatures count` showed the `string-icmp` engine had zero enabled and one retired signature. Signature load times were blank, and no IPS detection event was confirmed.
+
+**Current state:** the IPS rule is temporarily detached from Router1 GigabitEthernet0/0 using `no ip ips EDGE-IPS in`. The IPS definition has not been deleted. Do not claim operational IPS detection until valid signature status and an actual detection event are verified.
 
 ## Repository Contents
 - `configs/` — router configuration and security command records.
-- `docs/` — implementation log.
+- `docs/` — implementation log and troubleshooting checkpoints.
 - `evidence/` — genuine screenshots captured from Packet Tracer.
 
 ## Evidence Status
-The topology and router interface screenshots are listed in `evidence/README.md`. Screenshots for router connectivity, routing tables, and the ACL test should be added only after they are captured and committed.
+The evidence index is in `evidence/README.md`. Screenshots for connectivity recovery, routing tables, ACL configuration/counters, and the final PC1-blocked / PC2-allowed test still need to be captured and committed.
 
 ## Working Rules
 1. Record only commands actually entered or results actually observed.
